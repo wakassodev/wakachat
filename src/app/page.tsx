@@ -1,8 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Authenticated, Unauthenticated, useMutation, useQuery } from "convex/react";
-import { api } from "../convex/_generated/api";
+import {
+  Authenticated,
+  Unauthenticated,
+  useMutation,
+  useQuery,
+} from "convex/react";
+import { api } from "../../convex/_generated/api";
 import { SignInButton } from "@clerk/nextjs";
 
 export default function Home() {
