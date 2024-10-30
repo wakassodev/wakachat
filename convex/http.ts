@@ -8,11 +8,11 @@ const http = httpRouter();
 
 http.route({
   method: "POST",
-  path: "./clerk-webhook",
+  path: "/clerk-webhook",
   handler: httpAction(async (ctx, req) => {
     const body = await validateRequest(req);
     if (!body) {
-      return new Response("Unthaurized", { status: 401 });
+      return new Response("Unauthorized", { status: 401 });
     }
     switch (body.type) {
       case "user.created":
@@ -30,6 +30,11 @@ http.route({
         });
         break;
       case "user.deleted":
+        if (body.data.id) {
+          await ctx.runMutation(internal.functions.user.remove, {
+            clerkId: body.data.id,
+          });
+        }
         break;
     }
     return new Response("OK", { status: 200 });
@@ -46,9 +51,9 @@ const validateRequest = async (req: Request) => {
   try {
     const webhook = new Webhook(process.env.CLERK_WEBHOOK_SECRET!);
     return webhook.verify(text, {
-      id: svix_id!,
-      timestamp: svix_timestamp!,
-      signature: svix_signature!,
+      "svix-id": svix_id!,
+      "svix-timestamp": svix_timestamp!,
+      "svix-signature": svix_signature!,
     }) as unknown as WebhookEvent;
   } catch (error) {
     return null;
